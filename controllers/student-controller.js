@@ -1,27 +1,32 @@
 const Course = require("../models/course-model");
+const PendingEnrolled = require("../models/pendingenrolled-model");
 
 const enrollCourse = async (req, res) => {
     try {
 
         const { courseId } = req.params;
 
-        if (courseId == null) {
-            return res.status(400).json("Invalid course");
-        }
-
         const getCourse = await Course.findById(courseId);
 
         if (getCourse == null) {
-            return res.status(404).json("Course not found");
+            return res.status(404).json({ msg: "Course not found" });
         }
 
-        await Course.findByIdAndUpdate(courseId, { $inc: { enrollments: 1 } });
+        const userId = req.user._id.toString();
 
-        res.status(201).json({ msg: "Course enrolled" });
+        const checkUserAlreadyEnrolled = await PendingEnrolled.findOne({ studentId: userId, courseId: getCourse._id.toString() });
+
+        if (checkUserAlreadyEnrolled != null) {
+            return res.status(400).json({ msg: "User already enrolled in this course" });
+        }
+
+        await PendingEnrolled.create({ studentId: userId, courseId: getCourse._id.toString() });
+
+        res.status(200).json({ msg: "Course enrolled" });
 
     } catch (error) {
         res.status(500).json("Internal server error");
-    }    
+    }
 }
 
 module.exports = { enrollCourse };

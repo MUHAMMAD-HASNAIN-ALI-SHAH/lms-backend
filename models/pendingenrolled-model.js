@@ -3,13 +3,13 @@ const mongoose = require("mongoose");
 const pendingEnrolledSchema = new mongoose.Schema({
     studentId: {
         type: String,
-        required: true,
-        unique: true
+        ref: "user",
+        required: true
     },
     courseId: {
         type: String,
-        required: true,
-        unique: true
+        ref: "course",
+        required: true
     },
     paymentDone: {
         type: Boolean,
