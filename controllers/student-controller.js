@@ -3,30 +3,45 @@ const PendingEnrolled = require("../models/pendingenrolled-model");
 
 const enrollCourse = async (req, res) => {
     try {
-
         const { courseId } = req.params;
 
         const getCourse = await Course.findById(courseId);
 
         if (getCourse == null) {
-            return res.status(404).json({ msg: "Course not found" });
+            return res.status(404).json("Course not found");
         }
 
-        const userId = req.user._id.toString();
+        const getCourseEnrolled = await Course.findOne({ studentId: req.user._id.toString(), courseId: courseId });
 
-        const checkUserAlreadyEnrolled = await PendingEnrolled.findOne({ studentId: userId, courseId: getCourse._id.toString() });
-
-        if (checkUserAlreadyEnrolled != null) {
-            return res.status(400).json({ msg: "User already enrolled in this course" });
+        if (getCourseEnrolled != null) {
+            return res.status(409).json("Already enrolled");
         }
 
-        await PendingEnrolled.create({ studentId: userId, courseId: getCourse._id.toString() });
+        const getPendingEnrolled = await PendingEnrolled.findOne({ courseId: courseId });
 
-        res.status(200).json({ msg: "Course enrolled" });
+        if (getPendingEnrolled != null) {
+            return res.status(409).json("Already enrolled");
+        }
+
+        await PendingEnrolled.create({ courseId: courseId, studentId: req.user._id.toString() });
+
+        res.status(201).json({ msg: "Enrolled successfully" });
 
     } catch (error) {
         res.status(500).json("Internal server error");
     }
 }
 
-module.exports = { enrollCourse };
+const getEnrolledList = async (req, res) => {
+    try {
+
+        const getEnrolled = await PendingEnrolled.find({ studentId: req.user._id.toString() });
+
+        res.status(200).json(getEnrolled);
+
+    } catch (error) {
+        res.status(500).json("Internal server error");
+    }
+}
+
+module.exports = { enrollCourse,getEnrolledList };
