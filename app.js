@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/v1/auth",authRouter);
-// app.use("/api/v1/admin",adminRouter);
+app.use("/api/v1/admin",adminRouter);
 app.use("/api/v1/course",courseRouter);
 app.use("/api/v1/student",studentRouter);
 

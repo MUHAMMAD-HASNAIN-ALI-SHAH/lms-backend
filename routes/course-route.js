@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { addCourse, updateCourse, getCourses, deleteCourse, getOneCourse } = require("../controllers/course-controller");
 const { isAdmin } = require("../middlewares/admin-middleware");
+const { isAuth } = require("../middlewares/auth-middleware");
 
 router.route("/course").post(isAdmin, addCourse);
 router.route("/course/:courseId").put(isAdmin,updateCourse);

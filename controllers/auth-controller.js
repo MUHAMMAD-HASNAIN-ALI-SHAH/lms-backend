@@ -17,7 +17,7 @@ const register = async (req, res) => {
 
         await User.create({ email: email, password: hashedPassword, role: "USER" });
 
-        res.status(201).json({ msg: "User created successfully" });
+        res.status(201).json({ msg: "Successfully registered" });
 
     } catch (error) {
         res.status(500).json("Internal server error");
@@ -58,4 +58,35 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { register, login };
+const getUserDetailsFromToken = async (req, res) => {
+    try {
+        const token = req.headers.authorization;
+        if (!token) {
+            return res.status(401).json({ msg: "No token provided" });
+        }
+        const tokenSplit = token.split(" ")[1];
+        if (!tokenSplit) {
+            return res.status(401).json({ msg: "No token provided" });
+        }
+        
+        const getUser = jwt.verify(tokenSplit, process.env.JWT_SECRET_KEY);
+
+        const getUserFromDb = await User.findById(getUser.userId);
+        
+        if (!getUserFromDb) {
+            return res.status(401).json({ msg: "Invalid token" });
+        }
+
+        const getUserDetails = {
+            userId: getUserFromDb._id,
+            email: getUserFromDb.email,
+            role: getUserFromDb.role,
+        };
+        
+        res.status(200).json({ user: getUserDetails });
+    } catch (error) {
+        res.status(500).json({ msg: "Internal server error" });
+    }
+};
+
+module.exports = { register, login, getUserDetailsFromToken };

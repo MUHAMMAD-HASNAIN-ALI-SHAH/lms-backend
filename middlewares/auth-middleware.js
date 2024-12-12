@@ -26,6 +26,10 @@ const isAuth = async (req, res, next) => {
             return res.status(401).json({ msg: "Invalid token" });
         }
 
+        if (getUserFromDb.role != "USER") {
+            return res.status(401).json({ msg: "You are not an student" });
+        }
+
         req.user = getUserFromDb;
 
         next();

@@ -1,7 +1,9 @@
 const express = require("express");
-// const { addCourse, updateCourse, getCourses, deleteCourse, getOneCourse } = require("../controllers/admin-controller");
-// const { isAdmin } = require("../middlewares/admin-middleware");
+const { isAdmin } = require("../middlewares/admin-middleware");
+const { verifyEnrollment, getAllEnrollments } = require("../controllers/admin-controller");
 const router = express.Router();
 
+router.route("/verifyEnrollment/:id").get(isAdmin, verifyEnrollment);
+router.route("/getAllEnrollments").get(isAdmin, getAllEnrollments);
 
 module.exports = router;
